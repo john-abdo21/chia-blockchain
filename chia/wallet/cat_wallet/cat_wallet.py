@@ -18,7 +18,6 @@ from chia.types.announcement import Announcement
 from chia.types.blockchain_format.coin import Coin
 from chia.types.blockchain_format.program import Program
 from chia.types.blockchain_format.sized_bytes import bytes32
-from chia.types.coin_spend import CoinSpend
 from chia.types.condition_opcodes import ConditionOpcode
 from chia.types.generator_types import BlockGenerator
 from chia.types.spend_bundle import SpendBundle
@@ -28,7 +27,7 @@ from chia.util.hash import std_hash
 from chia.util.ints import uint32, uint64, uint128
 from chia.util.streamable import Streamable
 from chia.wallet.cat_wallet.cat_constants import DEFAULT_CATS
-from chia.wallet.cat_wallet.cat_info import CATInfo, LegacyCATInfo
+from chia.wallet.cat_wallet.cat_info import CATCoinData, CATInfo, LegacyCATInfo
 from chia.wallet.cat_wallet.cat_utils import (
     CAT_MOD,
     SpendableCAT,
@@ -359,39 +358,47 @@ class CATWallet:
         )
 
     async def coin_added(
-        self, coin: Coin, height: uint32, peer: WSChiaConnection, coin_data: Optional[Streamable]
+        self, coin: Coin, height: uint32, peer: WSChiaConnection, parent_coin_data: Optional[Streamable]
     ) -> None:
         """Notification from wallet state manager that wallet has been received."""
         self.log.info(f"CAT wallet has been notified that {coin.name().hex()} was added")
-
         inner_puzzle = await self.inner_puzzle_for_cat_puzhash(coin.puzzle_hash)
         lineage_proof = LineageProof(coin.parent_coin_info, inner_puzzle.get_tree_hash(), uint64(coin.amount))
         await self.add_lineage(coin.name(), lineage_proof)
-
         lineage = await self.get_lineage_proof_for_coin(coin)
 
         if lineage is None:
             try:
-                coin_state = await self.wallet_state_manager.wallet_node.get_coin_state(
-                    [coin.parent_coin_info], peer=peer
-                )
-                assert coin_state[0].coin.name() == coin.parent_coin_info
-                coin_spend = await fetch_coin_spend_for_coin_state(coin_state[0], peer)
-                await self.puzzle_solution_received(coin_spend, parent_coin=coin_state[0].coin)
+                if parent_coin_data is None:
+                    # The method is not triggered after the determine_coin_type, no pre-fetched data
+                    coin_state = await self.wallet_state_manager.wallet_node.get_coin_state(
+                        [coin.parent_coin_info], peer=peer
+                    )
+                    assert coin_state[0].coin.name() == coin.parent_coin_info
+                    coin_spend = await fetch_coin_spend_for_coin_state(coin_state[0], peer)
+                    cat_curried_args = match_cat_puzzle(uncurry_puzzle(coin_spend.puzzle_reveal.to_program()))
+                    if cat_curried_args is not None:
+                        cat_mod_hash, tail_program_hash, cat_inner_puzzle = cat_curried_args
+                        parent_coin_data = CATCoinData(
+                            cat_mod_hash.atom,
+                            tail_program_hash.atom,
+                            cat_inner_puzzle,
+                            coin_state[0].coin.parent_coin_info,
+                            uint64(coin_state[0].coin.amount),
+                        )
+                await self.puzzle_solution_received(coin, parent_coin_data)
             except Exception as e:
                 self.log.debug(f"Exception: {e}, traceback: {traceback.format_exc()}")
 
-    async def puzzle_solution_received(self, coin_spend: CoinSpend, parent_coin: Coin) -> None:
-        coin_name = coin_spend.coin.name()
-        puzzle: Program = Program.from_bytes(bytes(coin_spend.puzzle_reveal))
-        args = match_cat_puzzle(uncurry_puzzle(puzzle))
-        if args is not None:
-            mod_hash, genesis_coin_checker_hash, inner_puzzle = args
-            self.log.info(f"parent: {coin_name.hex()} inner_puzzle for parent is {inner_puzzle}")
-
+    async def puzzle_solution_received(self, coin: Coin, parent_coin_data: Optional[Streamable]) -> None:
+        coin_name = coin.parent_coin_info
+        if parent_coin_data is not None:
+            assert isinstance(parent_coin_data, CATCoinData)
+            data: CATCoinData = parent_coin_data
+            self.log.info(f"parent: {coin_name.hex()} inner_puzzle for parent is {data.inner_puzzle}")
             await self.add_lineage(
                 coin_name,
-                LineageProof(parent_coin.parent_coin_info, inner_puzzle.get_tree_hash(), uint64(parent_coin.amount)),
+                LineageProof(data.parent_coin_id, data.inner_puzzle.get_tree_hash(), data.amount),
             )
         else:
             # The parent is not a CAT which means we need to scrub all of its children from our DB

@@ -670,7 +670,13 @@ class WalletStateManager:
         cat_curried_args = match_cat_puzzle(uncurried)
         if cat_curried_args is not None:
             cat_mod_hash, tail_program_hash, cat_inner_puzzle = cat_curried_args
-            cat_data: CATCoinData = CATCoinData(cat_mod_hash.atom, tail_program_hash.atom, cat_inner_puzzle)
+            cat_data: CATCoinData = CATCoinData(
+                cat_mod_hash.atom,
+                tail_program_hash.atom,
+                cat_inner_puzzle,
+                parent_coin_state.coin.parent_coin_info,
+                uint64(parent_coin_state.coin.amount),
+            )
             return (
                 await self.handle_cat(
                     cat_data,
