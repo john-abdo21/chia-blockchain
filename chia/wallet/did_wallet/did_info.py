@@ -4,6 +4,8 @@ from dataclasses import dataclass
 from enum import IntEnum
 from typing import List, Optional, Tuple
 
+from chia_rs.chia_rs import CoinState
+
 from chia.types.blockchain_format.coin import Coin
 from chia.types.blockchain_format.program import Program
 from chia.types.blockchain_format.sized_bytes import bytes32
@@ -35,6 +37,8 @@ class DIDCoinData(Streamable):
     num_verification: uint16
     singleton_struct: Program
     metadata: Program
+    inner_puzzle: Optional[Program]
+    coin_state: CoinState
 
 
 class DIDVersion(IntEnum):
