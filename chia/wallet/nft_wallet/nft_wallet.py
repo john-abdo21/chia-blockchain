@@ -699,6 +699,7 @@ class NFTWallet:
         metadata_update: Optional[Tuple[str, str]] = None,
         nft_coin: Optional[NFTCoinInfo] = None,
         reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
     ) -> Tuple[SpendBundle, Optional[TransactionRecord]]:
         if nft_coin is None:
             if coins is None or not len(coins) == 1:
@@ -728,7 +729,6 @@ class NFTWallet:
             announcement_to_make = None
             chia_tx = None
 
-        extra_conditions: List[Condition] = []
         unft = UncurriedNFT.uncurry(*nft_coin.full_puzzle.uncurry())
         assert unft is not None
         if unft.supports_did:
@@ -1239,6 +1239,7 @@ class NFTWallet:
         did_lineage_parent: Optional[bytes32] = None,
         fee: Optional[uint64] = uint64(0),
         reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
     ) -> SpendBundle:
         """
         Minting NFTs from the DID linked wallet, also used for bulk minting NFTs.
@@ -1471,6 +1472,7 @@ class NFTWallet:
             coin_announcements=did_coin_announcement,
             coin_announcements_to_assert=did_announcements,
             puzzle_announcements_to_assert=puzzle_assertions,
+            conditions=extra_conditions,
         )
         did_inner_sol: Program = Program.to([1, did_p2_solution])
         did_full_puzzle: Program = chia.wallet.singleton.create_singleton_puzzle(
@@ -1520,6 +1522,7 @@ class NFTWallet:
         xch_change_ph: Optional[bytes32] = None,
         fee: Optional[uint64] = uint64(0),
         reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
     ) -> SpendBundle:
         """
         Minting NFTs from a single XCH spend using intermediate launcher puzzle
@@ -1691,6 +1694,7 @@ class NFTWallet:
                     coin_announcements=xch_announcement if len(xch_coins) > 1 else None,
                     coin_announcements_to_assert=coin_announcements,
                     puzzle_announcements_to_assert=puzzle_assertions,
+                    conditions=extra_conditions,
                 )
                 primary_announcement_hash = Announcement(xch_coin.name(), message).name()
                 first = False

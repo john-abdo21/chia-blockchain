@@ -276,6 +276,7 @@ class Wallet:
         excluded_coins: Optional[Set[Coin]] = None,
         puzzle_decorator_override: Optional[List[Dict[str, Any]]] = None,
         reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
     ) -> List[CoinSpend]:
         """
         Generates a unsigned transaction in form of List(Puzzle, Solutions)
@@ -387,6 +388,7 @@ class Wallet:
                     coin_announcements={message},
                     coin_announcements_to_assert=coin_announcements_bytes,
                     puzzle_announcements_to_assert=puzzle_announcements_bytes,
+                    conditions=extra_conditions,
                 )
                 solution = decorator_manager.solve(inner_puzzle, target_primary, solution)
                 primary_announcement_hash = Announcement(coin.name(), message).name()

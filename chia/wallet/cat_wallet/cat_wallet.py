@@ -642,6 +642,7 @@ class CATWallet:
         excluded_coin_amounts: Optional[List[uint64]] = None,
         excluded_coins: Optional[Set[Coin]] = None,
         reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
     ) -> Tuple[SpendBundle, Optional[TransactionRecord]]:
         if coin_announcements_to_consume is not None:
             coin_announcements_bytes: Optional[Set[bytes32]] = {a.name() for a in coin_announcements_to_consume}
@@ -720,22 +721,20 @@ class CATWallet:
         announcement: Announcement
 
         for coin in cat_coins:
-            extra_conditions: List[Condition] = []
             if cat_discrepancy is not None:
-                extra_conditions.append(
-                    UnknownCondition(
-                        opcode=Program.to(51),
-                        args=[
-                            Program.to(None),
-                            Program.to(-113),
-                            tail_reveal,
-                            tail_solution,
-                        ],
-                    )
+                cat_condition = UnknownCondition(
+                    opcode=Program.to(51),
+                    args=[
+                        Program.to(None),
+                        Program.to(-113),
+                        tail_reveal,
+                        tail_solution,
+                    ],
                 )
             if first:
                 first = False
                 announcement = Announcement(coin.name(), std_hash(b"".join([c.name() for c in cat_coins])))
+                extra_conditions.append(cat_condition)
                 if need_chia_transaction:
                     if fee > regular_chia_to_claim:
                         chia_tx, _ = await self.create_tandem_xch_tx(
@@ -775,7 +774,7 @@ class CATWallet:
                         coin_announcements={announcement.message},
                         coin_announcements_to_assert=coin_announcements_bytes,
                         puzzle_announcements_to_assert=puzzle_announcements_bytes,
-                        conditions=extra_conditions,
+                        conditions=[cat_condition],
                     )
             else:
                 innersol = self.standard_wallet.make_solution(
