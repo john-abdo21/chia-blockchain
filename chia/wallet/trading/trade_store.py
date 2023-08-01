@@ -11,7 +11,7 @@ from chia.types.mempool_inclusion_status import MempoolInclusionStatus
 from chia.util.db_wrapper import DBWrapper2
 from chia.util.errors import Err
 from chia.util.ints import uint8, uint32
-from chia.wallet.trade_record import TradeRecord
+from chia.wallet.trade_record import TradeRecord, TradeRecordOld
 from chia.wallet.trading.offer import Offer
 from chia.wallet.trading.trade_status import TradeStatus
 
@@ -66,6 +66,31 @@ async def migrate_is_my_offer(log: logging.Logger, db_connection: aiosqlite.Conn
         await db_connection.executemany("UPDATE trade_records SET is_my_offer=? WHERE trade_id=?", updates)
     except (aiosqlite.OperationalError, aiosqlite.IntegrityError):
         log.exception("Failed to migrate is_my_offer property in trade_records")
+        raise
+
+    end_time = perf_counter()
+    log.info(f"Completed migration of {len(updates)} records in {end_time - start_time} seconds")
+
+
+async def migrate_expirations(log: logging.Logger, db_connection: aiosqlite.Connection) -> None:
+    """
+    Migrate the serialized TradeRecord (trade_record column) to contain a field for expiration.
+    """
+    log.info("Beginning migration of expiration property in trade_records")
+
+    start_time = perf_counter()
+    cursor = await db_connection.execute("SELECT trade_record, trade_id from trade_records")
+    rows = await cursor.fetchall()
+    await cursor.close()
+
+    updates: List[Tuple[bytes, str]] = []
+    for row in rows:
+        updates.append((bytes(TradeRecord(**TradeRecordOld.from_bytes(row[0]).__dict__, expiration=None)), row[1]))
+
+    try:
+        await db_connection.executemany("UPDATE trade_records SET trade_record=? WHERE trade_id=?", updates)
+    except (aiosqlite.OperationalError, aiosqlite.IntegrityError):
+        log.exception("Failed to migrate expiration property in trade_records")
         raise
 
     end_time = perf_counter()
@@ -128,6 +153,7 @@ class TradeStore:
                 migrate_coin_of_interest_col = False
             # Attempt to add the is_my_offer column. If successful, migrate is_my_offer to the new column.
             needs_is_my_offer_migration: bool = False
+            needs_expiration_migration: bool = False
             try:
                 await conn.execute("ALTER TABLE trade_records ADD COLUMN is_my_offer tinyint")
                 needs_is_my_offer_migration = True
@@ -140,12 +166,20 @@ class TradeStore:
             except aiosqlite.OperationalError:
                 pass  # ignore what is likely Duplicate column error
 
+            try:
+                await conn.execute("ALTER TABLE trade_records ADD COLUMN expiration bigint")
+                needs_expiration_migration = True
+            except aiosqlite.OperationalError:
+                pass  # ignore what is likely Duplicate column error
+
             await conn.execute("CREATE INDEX IF NOT EXISTS trade_confirmed_index on trade_records(confirmed_at_index)")
             await conn.execute("CREATE INDEX IF NOT EXISTS trade_status on trade_records(status)")
             await conn.execute("CREATE INDEX IF NOT EXISTS trade_id on trade_records(trade_id)")
 
             if needs_is_my_offer_migration:
                 await migrate_is_my_offer(self.log, conn)
+            if needs_expiration_migration:
+                await migrate_expirations(self.log, conn)
             if migrate_coin_of_interest_col:
                 await migrate_coin_of_interest(self.log, conn)
 
