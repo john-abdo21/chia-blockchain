@@ -5,12 +5,14 @@ import logging
 import time
 from typing import Dict, List, Optional, Tuple
 
+import aiosqlite
+
 from chia.types.blockchain_format.sized_bytes import bytes32
 from chia.types.mempool_inclusion_status import MempoolInclusionStatus
 from chia.util.db_wrapper import DBWrapper2
 from chia.util.errors import Err
 from chia.util.ints import uint8, uint32
-from chia.wallet.transaction_record import TransactionRecord, minimum_send_attempts
+from chia.wallet.transaction_record import TransactionRecord, TransactionRecordOld, minimum_send_attempts
 from chia.wallet.transaction_sorting import SortKey
 from chia.wallet.util.query_filter import FilterMode, TransactionTypeFilter
 from chia.wallet.util.transaction_type import TransactionType
@@ -25,6 +27,33 @@ def filter_ok_mempool_status(sent_to: List[Tuple[str, uint8, Optional[str]]]) ->
         if status == MempoolInclusionStatus.FAILED.value:
             new_sent_to.append((peer, status, err))
     return new_sent_to
+
+
+async def migrate_expirations(db_connection: aiosqlite.Connection) -> None:
+    """
+    Migrate the serialized Transaction (transaction_record column) to contain a field for expiration.
+    """
+    log.info("Beginning migration of expiration property in transaction_record")
+
+    start_time = time.perf_counter()
+    cursor = await db_connection.execute("SELECT transaction_record, bundle_id from transaction_record")
+    rows = await cursor.fetchall()
+    await cursor.close()
+
+    updates: List[Tuple[bytes, str]] = []
+    for row in rows:
+        updates.append(
+            (bytes(TransactionRecord(**TransactionRecordOld.from_bytes(row[0]).__dict__, expiration=None)), row[1])
+        )
+
+    try:
+        await db_connection.executemany("UPDATE transaction_record SET transaction_record=? WHERE bundle_id=?", updates)
+    except (aiosqlite.OperationalError, aiosqlite.IntegrityError):
+        log.exception("Failed to migrate expiration property in transaction_record")
+        raise
+
+    end_time = time.perf_counter()
+    log.info(f"Completed migration of {len(updates)} records in {end_time - start_time} seconds")
 
 
 class WalletTransactionStore:
@@ -80,6 +109,16 @@ class WalletTransactionStore:
             await conn.execute(
                 "CREATE INDEX IF NOT EXISTS transaction_record_wallet_id on transaction_record(wallet_id)"
             )
+
+            needs_expiration_migration: bool = False
+            try:
+                await conn.execute("ALTER TABLE transaction_record ADD COLUMN expiration bigint")
+                needs_expiration_migration = True
+            except aiosqlite.OperationalError:
+                pass  # ignore what is likely Duplicate column error
+
+            if needs_expiration_migration:
+                await migrate_expirations(conn)
 
         self.tx_submitted = {}
         self.last_wallet_tx_resend_time = int(time.time())
