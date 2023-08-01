@@ -130,7 +130,7 @@ class WalletTransactionStore:
         """
         async with self.db_wrapper.writer_maybe_transaction() as conn:
             await conn.execute_insert(
-                "INSERT OR REPLACE INTO transaction_record VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO transaction_record VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     bytes(record),
                     record.name,
@@ -144,6 +144,7 @@ class WalletTransactionStore:
                     record.wallet_id,
                     record.trade_id,
                     record.type,
+                    record.expiration,
                 ),
             )
 

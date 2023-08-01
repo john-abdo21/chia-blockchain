@@ -198,7 +198,8 @@ class TradeStore:
                 raise ValueError("Trade for this offer already exists.")
             cursor = await conn.execute(
                 "INSERT OR REPLACE INTO trade_records "
-                "(trade_record, trade_id, status, confirmed_at_index, created_at_time, sent, offer_name, is_my_offer) "
+                "(trade_record, trade_id, status, confirmed_at_index, created_at_time, sent, offer_name, is_my_offer, "
+                "expiration) "
                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     bytes(record),
@@ -209,6 +210,7 @@ class TradeStore:
                     record.sent,
                     offer_name,
                     record.is_my_offer,
+                    record.expiration,
                 ),
             )
             await cursor.close()
