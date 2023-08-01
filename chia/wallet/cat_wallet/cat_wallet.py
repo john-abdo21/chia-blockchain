@@ -825,6 +825,7 @@ class CATWallet:
         max_coin_amount: Optional[uint64] = None,
         excluded_coin_amounts: Optional[List[uint64]] = None,
         reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
         **kwargs: Unpack[GSTOptionalArgs],
     ) -> List[TransactionRecord]:
         excluded_cat_coins: Optional[Set[Coin]] = kwargs.get("excluded_cat_coins", None)
@@ -859,6 +860,7 @@ class CATWallet:
             excluded_coin_amounts=excluded_coin_amounts,
             excluded_coins=excluded_cat_coins,
             reuse_puzhash=reuse_puzhash,
+            extra_conditions=extra_conditions,
         )
         spend_bundle = await self.sign(unsigned_spend_bundle)
         # TODO add support for array in stored records

@@ -290,6 +290,7 @@ class DataLayerWallet:
         self,
         initial_root: bytes32,
         fee: uint64 = uint64(0),
+        extra_conditions: List[Condition] = [],
     ) -> Tuple[TransactionRecord, TransactionRecord, bytes32]:
         """
         Creates the initial singleton, which includes spending an origin coin, the launcher, and creating a singleton
@@ -319,6 +320,7 @@ class DataLayerWallet:
             primaries=None,
             ignore_max_send_amount=False,
             coin_announcements_to_consume={announcement},
+            extra_conditions=extra_conditions,
         )
         assert create_launcher_tx_record is not None and create_launcher_tx_record.spend_bundle is not None
 
@@ -729,7 +731,12 @@ class DataLayerWallet:
         return collected
 
     async def create_new_mirror(
-        self, launcher_id: bytes32, amount: uint64, urls: List[bytes], fee: uint64 = uint64(0)
+        self,
+        launcher_id: bytes32,
+        amount: uint64,
+        urls: List[bytes],
+        fee: uint64 = uint64(0),
+        extra_conditions: List[Condition] = [],
     ) -> List[TransactionRecord]:
         create_mirror_tx_record: Optional[TransactionRecord] = await self.standard_wallet.generate_signed_transaction(
             amount=amount,
@@ -738,6 +745,7 @@ class DataLayerWallet:
             primaries=[],
             memos=[launcher_id, *(url for url in urls)],
             ignore_max_send_amount=False,
+            extra_conditions=extra_conditions,
         )
         assert create_mirror_tx_record is not None and create_mirror_tx_record.spend_bundle is not None
         return [create_mirror_tx_record]

@@ -153,6 +153,7 @@ class VCWallet:
         provider_did: bytes32,
         inner_puzzle_hash: Optional[bytes32] = None,
         fee: uint64 = uint64(0),
+        extra_conditions: List[Condition] = [],
     ) -> Tuple[VCRecord, List[TransactionRecord]]:
         """
         Given the DID ID of a proof provider, mint a brand new VC with an empty slot for proofs.
@@ -182,6 +183,7 @@ class VCWallet:
             inner_puzzle_hash,
             [inner_puzzle_hash],
             fee=fee,
+            extra_conditions=extra_conditions,
         )
         solution = solution_for_conditions(dpuz.rest())
         original_puzzle = await self.standard_wallet.puzzle_for_puzzle_hash(original_coin.puzzle_hash)
@@ -346,7 +348,12 @@ class VCWallet:
         return tx_list
 
     async def revoke_vc(
-        self, parent_id: bytes32, peer: WSChiaConnection, fee: uint64 = uint64(0), reuse_puzhash: Optional[bool] = None
+        self,
+        parent_id: bytes32,
+        peer: WSChiaConnection,
+        fee: uint64 = uint64(0),
+        reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
     ) -> List[TransactionRecord]:
         vc_coin_states: List[CoinState] = await self.wallet_state_manager.wallet_node.get_coin_state(
             [parent_id], peer=peer
@@ -388,6 +395,7 @@ class VCWallet:
         did_spend: SpendBundle = await did_wallet.create_message_spend(
             puzzle_announcements={expected_did_announcement},
             coin_announcements_to_assert={vc_announcement},
+            extra_conditions=extra_conditions,
         )
         final_bundle: SpendBundle = SpendBundle.aggregate([SpendBundle([vc_spend], G2Element()), did_spend])
         tx: TransactionRecord = TransactionRecord(

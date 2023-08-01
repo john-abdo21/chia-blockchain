@@ -449,6 +449,7 @@ class Wallet:
         excluded_coins: Optional[Set[Coin]] = None,
         puzzle_decorator_override: Optional[List[Dict[str, Any]]] = None,
         reuse_puzhash: Optional[bool] = None,
+        extra_conditions: List[Condition] = [],
         **kwargs: Unpack[GSTOptionalArgs],
     ) -> TransactionRecord:
         origin_id: Optional[bytes32] = kwargs.get("origin_id", None)
@@ -482,6 +483,7 @@ class Wallet:
             excluded_coins=excluded_coins,
             puzzle_decorator_override=puzzle_decorator_override,
             reuse_puzhash=reuse_puzhash,
+            extra_conditions=extra_conditions,
         )
         assert len(transaction) > 0
         self.log.info("About to sign a transaction: %s", transaction)
