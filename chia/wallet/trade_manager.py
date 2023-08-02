@@ -299,6 +299,7 @@ class TradeManager:
                             cancellation_additions.extend(tx.spend_bundle.additions())
                             all_txs.append(dataclasses.replace(tx, spend_bundle=None))
                 fee_to_pay = uint64(0)
+                extra_conditions = []
 
                 all_txs.append(
                     TransactionRecord(
