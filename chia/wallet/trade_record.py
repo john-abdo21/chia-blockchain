@@ -7,6 +7,7 @@ from chia.types.blockchain_format.coin import Coin
 from chia.types.blockchain_format.sized_bytes import bytes32
 from chia.util.ints import uint8, uint32, uint64
 from chia.util.streamable import Streamable, streamable
+from chia.wallet.conditions import ConditionValidTimes
 from chia.wallet.trading.offer import Offer
 from chia.wallet.trading.trade_status import TradeStatus
 
@@ -63,4 +64,4 @@ class TradeRecordOld(Streamable):
 @streamable
 @dataclass(frozen=True)
 class TradeRecord(TradeRecordOld):
-    expiration: Optional[uint64] = None
+    valid_times: Optional[ConditionValidTimes] = None

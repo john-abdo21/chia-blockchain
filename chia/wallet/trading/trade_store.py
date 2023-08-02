@@ -72,11 +72,11 @@ async def migrate_is_my_offer(log: logging.Logger, db_connection: aiosqlite.Conn
     log.info(f"Completed migration of {len(updates)} records in {end_time - start_time} seconds")
 
 
-async def migrate_expirations(log: logging.Logger, db_connection: aiosqlite.Connection) -> None:
+async def migrate_valid_times(log: logging.Logger, db_connection: aiosqlite.Connection) -> None:
     """
-    Migrate the serialized TradeRecord (trade_record column) to contain a field for expiration.
+    Migrate the serialized TradeRecord (trade_record column) to contain a field for valid_times.
     """
-    log.info("Beginning migration of expiration property in trade_records")
+    log.info("Beginning migration of valid_times property in trade_records")
 
     start_time = perf_counter()
     cursor = await db_connection.execute("SELECT trade_record, trade_id from trade_records")
@@ -85,12 +85,12 @@ async def migrate_expirations(log: logging.Logger, db_connection: aiosqlite.Conn
 
     updates: List[Tuple[bytes, str]] = []
     for row in rows:
-        updates.append((bytes(TradeRecord(**TradeRecordOld.from_bytes(row[0]).__dict__, expiration=None)), row[1]))
+        updates.append((bytes(TradeRecord(**TradeRecordOld.from_bytes(row[0]).__dict__, valid_times=None)), row[1]))
 
     try:
         await db_connection.executemany("UPDATE trade_records SET trade_record=? WHERE trade_id=?", updates)
     except (aiosqlite.OperationalError, aiosqlite.IntegrityError):
-        log.exception("Failed to migrate expiration property in trade_records")
+        log.exception("Failed to migrate valid_times property in trade_records")
         raise
 
     end_time = perf_counter()
@@ -153,7 +153,7 @@ class TradeStore:
                 migrate_coin_of_interest_col = False
             # Attempt to add the is_my_offer column. If successful, migrate is_my_offer to the new column.
             needs_is_my_offer_migration: bool = False
-            needs_expiration_migration: bool = False
+            needs_valid_times_migration: bool = False
             try:
                 await conn.execute("ALTER TABLE trade_records ADD COLUMN is_my_offer tinyint")
                 needs_is_my_offer_migration = True
@@ -166,11 +166,12 @@ class TradeStore:
             except aiosqlite.OperationalError:
                 pass  # ignore what is likely Duplicate column error
 
-            try:
-                await conn.execute("ALTER TABLE trade_records ADD COLUMN expiration bigint")
-                needs_expiration_migration = True
-            except aiosqlite.OperationalError:
-                pass  # ignore what is likely Duplicate column error
+            cursor = await conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='MIGRATED_VALID_TIMES_TRADES'"
+            )
+            if await cursor.fetchone() is None:
+                needs_valid_times_migration = True
+                await conn.execute("CREATE TABLE MIGRATED_VALID_TIMES_TRADES(_ blob)")
 
             await conn.execute("CREATE INDEX IF NOT EXISTS trade_confirmed_index on trade_records(confirmed_at_index)")
             await conn.execute("CREATE INDEX IF NOT EXISTS trade_status on trade_records(status)")
@@ -178,8 +179,8 @@ class TradeStore:
 
             if needs_is_my_offer_migration:
                 await migrate_is_my_offer(self.log, conn)
-            if needs_expiration_migration:
-                await migrate_expirations(self.log, conn)
+            if needs_valid_times_migration:
+                await migrate_valid_times(self.log, conn)
             if migrate_coin_of_interest_col:
                 await migrate_coin_of_interest(self.log, conn)
 
@@ -198,8 +199,7 @@ class TradeStore:
                 raise ValueError("Trade for this offer already exists.")
             cursor = await conn.execute(
                 "INSERT OR REPLACE INTO trade_records "
-                "(trade_record, trade_id, status, confirmed_at_index, created_at_time, sent, offer_name, is_my_offer, "
-                "expiration) "
+                "(trade_record, trade_id, status, confirmed_at_index, created_at_time, sent, offer_name, is_my_offer) "
                 "VALUES(?, ?, ?, ?, ?, ?, ?, ?)",
                 (
                     bytes(record),
@@ -210,7 +210,6 @@ class TradeStore:
                     record.sent,
                     offer_name,
                     record.is_my_offer,
-                    record.expiration,
                 ),
             )
             await cursor.close()

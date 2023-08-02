@@ -12,6 +12,7 @@ from chia.util.bech32m import decode_puzzle_hash, encode_puzzle_hash
 from chia.util.errors import Err
 from chia.util.ints import uint8, uint32, uint64
 from chia.util.streamable import Streamable, streamable
+from chia.wallet.conditions import ConditionValidTimes
 from chia.wallet.util.transaction_type import TransactionType
 
 T = TypeVar("T")
@@ -133,4 +134,4 @@ class TransactionRecordOld(Streamable):
 @streamable
 @dataclass(frozen=True)
 class TransactionRecord(TransactionRecordOld):
-    expiration: Optional[uint64] = None
+    valid_times: Optional[ConditionValidTimes] = None

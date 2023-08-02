@@ -741,7 +741,7 @@ async def test_transaction_record_is_valid() -> None:
 
 
 @pytest.mark.asyncio
-async def test_expiration_migration() -> None:
+async def test_valid_times_migration() -> None:
     async with DBConnection(1) as db_wrapper:
         async with db_wrapper.writer_maybe_transaction() as conn:
             await conn.execute(
@@ -803,4 +803,4 @@ async def test_expiration_migration() -> None:
         store = await WalletTransactionStore.create(db_wrapper)
         rec = await store.get_transaction_record(old_record.name)
         assert rec is not None
-        assert rec.expiration is None
+        assert rec.valid_times is None

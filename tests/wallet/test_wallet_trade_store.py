@@ -111,7 +111,7 @@ async def test_get_coins_of_interest_with_trade_statuses() -> None:
 
 
 @pytest.mark.asyncio
-async def test_expiration_migration() -> None:
+async def test_valid_times_migration() -> None:
     async with DBConnection(1) as db_wrapper:
         async with db_wrapper.writer_maybe_transaction() as conn:
             await conn.execute(
@@ -163,4 +163,4 @@ async def test_expiration_migration() -> None:
         trade_store = await TradeStore.create(db_wrapper)
         rec = await trade_store.get_trade_record(old_record.trade_id)
         assert rec is not None
-        assert rec.expiration is None
+        assert rec.valid_times is None
