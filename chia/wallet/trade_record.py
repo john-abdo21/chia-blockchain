@@ -64,4 +64,4 @@ class TradeRecordOld(Streamable):
 @streamable
 @dataclass(frozen=True)
 class TradeRecord(TradeRecordOld):
-    valid_times: Optional[ConditionValidTimes] = None
+    valid_times: ConditionValidTimes = ConditionValidTimes()

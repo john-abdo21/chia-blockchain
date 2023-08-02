@@ -11,6 +11,7 @@ from chia.types.mempool_inclusion_status import MempoolInclusionStatus
 from chia.util.db_wrapper import DBWrapper2
 from chia.util.errors import Err
 from chia.util.ints import uint8, uint32
+from chia.wallet.conditions import ConditionValidTimes
 from chia.wallet.trade_record import TradeRecord, TradeRecordOld
 from chia.wallet.trading.offer import Offer
 from chia.wallet.trading.trade_status import TradeStatus
@@ -85,7 +86,12 @@ async def migrate_valid_times(log: logging.Logger, db_connection: aiosqlite.Conn
 
     updates: List[Tuple[bytes, str]] = []
     for row in rows:
-        updates.append((bytes(TradeRecord(**TradeRecordOld.from_bytes(row[0]).__dict__, valid_times=None)), row[1]))
+        updates.append(
+            (
+                bytes(TradeRecord(**TradeRecordOld.from_bytes(row[0]).__dict__, valid_times=ConditionValidTimes())),
+                row[1],
+            )
+        )
 
     try:
         await db_connection.executemany("UPDATE trade_records SET trade_record=? WHERE trade_id=?", updates)

@@ -10,6 +10,7 @@ from chia.types.blockchain_format.coin import Coin
 from chia.types.blockchain_format.sized_bytes import bytes32
 from chia.types.spend_bundle import SpendBundle
 from chia.util.ints import uint32, uint64
+from chia.wallet.conditions import ConditionValidTimes
 from chia.wallet.trade_record import TradeRecord, TradeRecordOld
 from chia.wallet.trading.offer import Offer
 from chia.wallet.trading.trade_status import TradeStatus
@@ -163,4 +164,4 @@ async def test_valid_times_migration() -> None:
         trade_store = await TradeStore.create(db_wrapper)
         rec = await trade_store.get_trade_record(old_record.trade_id)
         assert rec is not None
-        assert rec.valid_times is None
+        assert rec.valid_times == ConditionValidTimes()

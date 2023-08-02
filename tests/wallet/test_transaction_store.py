@@ -11,6 +11,7 @@ from chia.types.blockchain_format.sized_bytes import bytes32
 from chia.types.mempool_inclusion_status import MempoolInclusionStatus
 from chia.util.errors import Err
 from chia.util.ints import uint8, uint32, uint64
+from chia.wallet.conditions import ConditionValidTimes
 from chia.wallet.transaction_record import TransactionRecord, TransactionRecordOld, minimum_send_attempts
 from chia.wallet.util.query_filter import TransactionTypeFilter
 from chia.wallet.util.transaction_type import TransactionType
@@ -803,4 +804,4 @@ async def test_valid_times_migration() -> None:
         store = await WalletTransactionStore.create(db_wrapper)
         rec = await store.get_transaction_record(old_record.name)
         assert rec is not None
-        assert rec.valid_times is None
+        assert rec.valid_times == ConditionValidTimes()
