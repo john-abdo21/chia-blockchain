@@ -46,7 +46,7 @@ from chia.types.coin_record import CoinRecord
 from chia.types.coin_spend import CoinSpend, compute_additions
 from chia.types.spend_bundle import SpendBundle
 from chia.util.ints import uint32, uint64, uint128
-from chia.wallet.conditions import Condition
+from chia.wallet.conditions import Condition, parse_timelock_info
 from chia.wallet.derive_keys import find_owner_sk
 from chia.wallet.puzzles.p2_delegated_puzzle_or_hidden_puzzle import puzzle_hash_for_synthetic_public_key
 from chia.wallet.sign_coin_spends import sign_coin_spends
@@ -455,6 +455,7 @@ class PoolWallet:
             trade_id=None,
             type=uint32(TransactionType.OUTGOING_TX.value),
             name=spend_bundle.name(),
+            valid_times=parse_timelock_info(extra_conditions),
         )
         await standard_wallet.push_transaction(standard_wallet_record)
         p2_singleton_puzzle_hash: bytes32 = launcher_id_to_p2_puzzle_hash(

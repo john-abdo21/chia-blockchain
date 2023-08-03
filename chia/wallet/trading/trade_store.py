@@ -258,6 +258,7 @@ class TradeStore:
             trade_id=current.trade_id,
             status=uint32(status.value),
             sent_to=current.sent_to,
+            valid_times=current.valid_times,
         )
         await self.add_trade_record(tx, offer_name)
 
@@ -295,6 +296,7 @@ class TradeStore:
             trade_id=current.trade_id,
             status=current.status,
             sent_to=sent_to,
+            valid_times=current.valid_times,
         )
         offer = Offer.from_bytes(current.offer)
         await self.add_trade_record(tx, offer.name())

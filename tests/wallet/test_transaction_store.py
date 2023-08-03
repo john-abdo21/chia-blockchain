@@ -39,6 +39,7 @@ tr1 = TransactionRecord(
     uint32(TransactionType.OUTGOING_TX),  # type
     bytes32(token_bytes(32)),  # name
     [],  # List[Tuple[bytes32, List[bytes]]] memos
+    ConditionValidTimes(),
 )
 
 

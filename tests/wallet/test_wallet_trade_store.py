@@ -50,6 +50,7 @@ async def test_get_coins_of_interest_with_trade_statuses() -> None:
             trade_id=tr1_name,
             status=uint32(TradeStatus.PENDING_ACCEPT.value),
             sent_to=[],
+            valid_times=ConditionValidTimes(),
         )
         await trade_store.add_trade_record(tr1, offer_name=bytes32(token_bytes(32)))
 
@@ -66,6 +67,7 @@ async def test_get_coins_of_interest_with_trade_statuses() -> None:
             trade_id=tr2_name,
             status=uint32(TradeStatus.PENDING_CONFIRM.value),
             sent_to=[],
+            valid_times=ConditionValidTimes(),
         )
         await trade_store.add_trade_record(tr2, offer_name=bytes32(token_bytes(32)))
 
@@ -90,6 +92,7 @@ async def test_get_coins_of_interest_with_trade_statuses() -> None:
             trade_id=tr2_name,
             status=uint32(TradeStatus.PENDING_CONFIRM.value),
             sent_to=[],
+            valid_times=ConditionValidTimes(),
         )
         await trade_store.add_trade_record(tr2_1, offer_name=bytes32(token_bytes(32)))
 
