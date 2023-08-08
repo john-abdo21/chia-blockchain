@@ -796,7 +796,11 @@ class WalletStateManager:
             await self.spend_clawback_coins(clawback_coins, tx_fee)
 
     async def spend_clawback_coins(
-        self, clawback_coins: Dict[Coin, ClawbackMetadata], fee: uint64, force: bool = False, extra_conditions: List[Condition] = []
+        self,
+        clawback_coins: Dict[Coin, ClawbackMetadata],
+        fee: uint64,
+        force: bool = False,
+        extra_conditions: List[Condition] = [],
     ) -> List[bytes32]:
         assert len(clawback_coins) > 0
         coin_spends: List[CoinSpend] = []
