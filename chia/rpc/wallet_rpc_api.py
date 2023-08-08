@@ -3830,7 +3830,10 @@ class WalletRpcApi:
             "transactions": [tx.to_json_dict_convenience(self.service.config) for tx in txs],
         }
 
-    async def crcat_approve_pending(self, request: Dict[str, Any]) -> EndpointResult:
+    @tx_endpoint
+    async def crcat_approve_pending(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+    ) -> EndpointResult:
         """
         Moving any "pending approval" CR-CATs into the spendable balance of the wallet
         :param request: Required 'wallet_id'. Optional 'min_amount_to_claim' (deafult: full balance).
@@ -3861,6 +3864,7 @@ class WalletRpcApi:
             max_coin_amount=parsed_request.max_coin_amount,
             excluded_coin_amounts=parsed_request.excluded_coin_amounts,
             reuse_puzhash=parsed_request.reuse_puzhash,
+            extra_conditions=extra_conditions,
         )
         for tx in txs:
             await self.service.wallet_state_manager.add_pending_transaction(tx)
