@@ -11,12 +11,16 @@ from chia.types.weight_proof import WeightProof
 from chia.util.generator_tools import get_block_header
 from chia.wallet.key_val_store import KeyValStore
 from chia.wallet.wallet_blockchain import WalletBlockchain
+from tests.conftest import Mode
 from tests.util.db_connection import DBConnection
 
 
 class TestWalletBlockchain:
     @pytest.mark.asyncio
-    async def test_wallet_blockchain(self, simulator_and_wallet, default_1000_blocks):
+    async def test_wallet_blockchain(self, simulator_and_wallet, default_1000_blocks, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         [full_node_api], [(wallet_node, _)], bt = simulator_and_wallet
 
         for block in default_1000_blocks[:600]:

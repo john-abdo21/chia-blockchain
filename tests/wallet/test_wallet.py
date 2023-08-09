@@ -33,6 +33,7 @@ from chia.wallet.util.wallet_types import CoinType
 from chia.wallet.wallet import CHIP_0002_SIGN_MESSAGE_PREFIX
 from chia.wallet.wallet_node import WalletNode, get_wallet_db_path
 from chia.wallet.wallet_state_manager import WalletStateManager
+from tests.conftest import Mode
 
 
 class TestWalletSimulator:
@@ -196,7 +197,11 @@ class TestWalletSimulator:
         two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
         trusted: bool,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 1
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -429,7 +434,11 @@ class TestWalletSimulator:
         two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
         trusted: bool,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 1
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -517,7 +526,11 @@ class TestWalletSimulator:
         two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
         trusted: bool,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 1
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -611,7 +624,11 @@ class TestWalletSimulator:
         two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
         trusted: bool,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 1
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -771,7 +788,11 @@ class TestWalletSimulator:
         two_wallet_nodes: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
         trusted: bool,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 1
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -969,7 +990,11 @@ class TestWalletSimulator:
         simulator_and_wallet: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
         trusted: bool,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         full_nodes, wallets, _ = simulator_and_wallet
         full_node_api = full_nodes[0]
         fn_server = full_node_api.full_node.server
@@ -1010,7 +1035,11 @@ class TestWalletSimulator:
         three_sim_two_wallets: Tuple[List[FullNodeSimulator], List[Tuple[WalletNode, ChiaServer]], BlockTools],
         trusted: bool,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 10
         full_nodes, wallets, _ = three_sim_two_wallets
 
