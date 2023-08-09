@@ -30,7 +30,7 @@ from chia.wallet.vc_wallet.cr_cat_drivers import ProofsChecker
 from chia.wallet.vc_wallet.cr_cat_wallet import CRCATWallet
 from chia.wallet.vc_wallet.vc_store import VCProofs
 from chia.wallet.wallet_node import WalletNode
-from tests.conftest import SOFTFORK_HEIGHTS
+from tests.conftest import SOFTFORK_HEIGHTS, Mode
 from tests.wallet.vc_wallet.test_vc_wallet import mint_cr_cat
 
 
@@ -83,7 +83,11 @@ async def test_cat_trades(
     reuse_puzhash: bool,
     credential_restricted: bool,
     active_softfork_height: uint32,
+    consensus_mode: Mode,
 ):
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     (
         [wallet_node_maker, initial_maker_balance],
         [wallet_node_taker, initial_taker_balance],
@@ -914,7 +918,10 @@ class TestCATTrades:
         await time_out_assert(15, get_trade_and_status, TradeStatus.CANCELLED, trade_manager_maker, trade_make)
 
     @pytest.mark.asyncio
-    async def test_trade_conflict(self, three_wallets_prefarm):
+    async def test_trade_conflict(self, three_wallets_prefarm, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         (
             [wallet_node_maker, maker_funds],
             [wallet_node_taker, taker_funds],

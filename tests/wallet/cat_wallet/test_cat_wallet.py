@@ -36,6 +36,7 @@ from chia.wallet.util.tx_config import DEFAULT_COIN_SELECTION_CONFIG, DEFAULT_TX
 from chia.wallet.util.wallet_types import WalletType
 from chia.wallet.wallet_info import WalletInfo
 from chia.wallet.wallet_interested_store import WalletInterestedStore
+from tests.conftest import Mode
 
 
 class TestCATWallet:
@@ -671,7 +672,10 @@ class TestCATWallet:
         [True, False],
     )
     @pytest.mark.asyncio
-    async def test_cat_max_amount_send(self, self_hostname, two_wallet_nodes, trusted):
+    async def test_cat_max_amount_send(self, self_hostname, two_wallet_nodes, trusted, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 3
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
@@ -789,7 +793,10 @@ class TestCATWallet:
         [True, False],
     )
     @pytest.mark.asyncio
-    async def test_cat_hint(self, self_hostname, two_wallet_nodes, trusted, autodiscovery):
+    async def test_cat_hint(self, self_hostname, two_wallet_nodes, trusted, autodiscovery, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 3
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]

@@ -25,6 +25,7 @@ from chia.wallet.lineage_proof import LineageProof
 from chia.wallet.puzzles.tails import DelegatedLimitations, EverythingWithSig, GenesisById, GenesisByPuzhash
 from tests.clvm.benchmark_costs import cost_of_spend_bundle
 from tests.clvm.test_puzzles import secret_exponent_for_index
+from tests.conftest import Mode
 
 acs = Program.to(1)
 acs_ph = acs.get_tree_hash()
@@ -92,7 +93,10 @@ async def do_spend(
 
 class TestCATLifecycle:
     @pytest.mark.asyncio()
-    async def test_cat_mod(self, cost_logger):
+    async def test_cat_mod(self, cost_logger, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         async with sim_and_client() as (sim, sim_client):
             tail = Program.to([])
             checker_solution = Program.to([])
@@ -261,7 +265,10 @@ class TestCATLifecycle:
             )
 
     @pytest.mark.asyncio()
-    async def test_complex_spend(self, cost_logger):
+    async def test_complex_spend(self, cost_logger, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         async with sim_and_client() as (sim, sim_client):
             tail = Program.to([])
             checker_solution = Program.to([])
@@ -355,7 +362,10 @@ class TestCATLifecycle:
             )
 
     @pytest.mark.asyncio()
-    async def test_genesis_by_id(self, cost_logger):
+    async def test_genesis_by_id(self, cost_logger, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         async with sim_and_client() as (sim, sim_client):
             standard_acs = Program.to(1)
             standard_acs_ph: bytes32 = standard_acs.get_tree_hash()
@@ -396,7 +406,10 @@ class TestCATLifecycle:
             )
 
     @pytest.mark.asyncio()
-    async def test_genesis_by_puzhash(self, cost_logger):
+    async def test_genesis_by_puzhash(self, cost_logger, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         async with sim_and_client() as (sim, sim_client):
             standard_acs = Program.to(1)
             standard_acs_ph: bytes32 = standard_acs.get_tree_hash()
@@ -437,7 +450,10 @@ class TestCATLifecycle:
             )
 
     @pytest.mark.asyncio()
-    async def test_everything_with_signature(self, cost_logger):
+    async def test_everything_with_signature(self, cost_logger, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         async with sim_and_client() as (sim, sim_client):
             sk = PrivateKey.from_bytes(secret_exponent_for_index(1).to_bytes(32, "big"))
             tail: Program = EverythingWithSig.construct([Program.to(sk.get_g1())])
@@ -548,7 +564,10 @@ class TestCATLifecycle:
             )
 
     @pytest.mark.asyncio()
-    async def test_delegated_tail(self, cost_logger):
+    async def test_delegated_tail(self, cost_logger, consensus_mode):
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         async with sim_and_client() as (sim, sim_client):
             standard_acs = Program.to(1)
             standard_acs_ph: bytes32 = standard_acs.get_tree_hash()
