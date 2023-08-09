@@ -29,6 +29,7 @@ from chia.wallet.util.wallet_types import WalletType
 from chia.wallet.wallet import CHIP_0002_SIGN_MESSAGE_PREFIX
 from chia.wallet.wallet_node import WalletNode
 from chia.wallet.wallet_state_manager import WalletStateManager
+from tests.conftest import Mode
 
 
 async def get_nft_count(wallet: NFTWallet) -> int:
@@ -181,7 +182,12 @@ async def test_nft_wallet_creation_automatically(self_hostname: str, two_wallet_
     [True, False],
 )
 @pytest.mark.asyncio
-async def test_nft_wallet_creation_and_transfer(self_hostname: str, two_wallet_nodes: Any, trusted: Any) -> None:
+async def test_nft_wallet_creation_and_transfer(
+    self_hostname: str, two_wallet_nodes: Any, trusted: Any, consensus_mode: Mode
+) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     num_blocks = 2
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]
@@ -1524,7 +1530,10 @@ async def test_nft_bulk_transfer(two_wallet_nodes: Any, trusted: Any) -> None:
     [True, False],
 )
 @pytest.mark.asyncio
-async def test_nft_set_did(self_hostname: str, two_wallet_nodes: Any, trusted: Any) -> None:
+async def test_nft_set_did(self_hostname: str, two_wallet_nodes: Any, trusted: Any, consensus_mode: Mode) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     num_blocks = 3
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]

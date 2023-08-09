@@ -39,6 +39,7 @@ from chia.wallet.util.tx_config import DEFAULT_TX_CONFIG
 from chia.wallet.util.wallet_types import WalletType
 from chia.wallet.wallet_node import WalletNode
 from chia.wallet.wallet_node_api import WalletNodeAPI
+from tests.conftest import Mode
 
 # TODO: Compare deducted fees in all tests against reported total_fee
 
@@ -411,7 +412,11 @@ class TestPoolWalletRpc:
         one_wallet_node_and_rpc: OneWalletNodeAndRpc,
         fee: uint64,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode == Mode.SOFT_FORK4:
+            pytest.skip("the pooling test only creates one plot, and cannot pass CHIP-13 rules")
+
         client, wallet_node, full_node_api, total_block_rewards, _ = one_wallet_node_and_rpc
         bt = full_node_api.bt
 
@@ -492,7 +497,11 @@ class TestPoolWalletRpc:
         one_wallet_node_and_rpc: OneWalletNodeAndRpc,
         fee: uint64,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode == Mode.SOFT_FORK4:
+            pytest.skip("the pooling test only creates one plot, and cannot pass CHIP-13 rules")
+
         client, wallet_node, full_node_api, total_block_rewards, _ = one_wallet_node_and_rpc
         bt = full_node_api.bt
 
@@ -564,7 +573,11 @@ class TestPoolWalletRpc:
         one_wallet_node_and_rpc: OneWalletNodeAndRpc,
         fee: uint64,
         self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode == Mode.SOFT_FORK4:
+            pytest.skip("the pooling test only creates one plot, and cannot pass CHIP-13 rules")
+
         client, wallet_node, full_node_api, total_block_rewards, _ = one_wallet_node_and_rpc
         bt = full_node_api.bt
 

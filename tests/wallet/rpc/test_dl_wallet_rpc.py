@@ -15,6 +15,7 @@ from chia.types.blockchain_format.sized_bytes import bytes32
 from chia.types.peer_info import PeerInfo
 from chia.util.ints import uint16, uint32, uint64
 from chia.wallet.db_wallet.db_wallet_puzzles import create_mirror_puzzle
+from tests.conftest import Mode
 from tests.util.rpc import validate_get_routes
 
 log = logging.getLogger(__name__)
@@ -27,8 +28,15 @@ class TestWalletRpc:
     )
     @pytest.mark.asyncio
     async def test_wallet_make_transaction(
-        self, two_wallet_nodes_services: SimulatorsAndWalletsServices, trusted: bool, self_hostname: str
+        self,
+        two_wallet_nodes_services: SimulatorsAndWalletsServices,
+        trusted: bool,
+        self_hostname: str,
+        consensus_mode: Mode,
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         num_blocks = 5
         [full_node_service], wallet_services, bt = two_wallet_nodes_services
         full_node_api = full_node_service._api

@@ -25,6 +25,7 @@ from chia.wallet.trading.trade_status import TradeStatus
 from chia.wallet.uncurried_puzzle import uncurry_puzzle
 from chia.wallet.util.compute_memos import compute_memos
 from chia.wallet.util.tx_config import DEFAULT_TX_CONFIG
+from tests.conftest import Mode
 
 # from clvm_tools.binutils import disassemble
 
@@ -61,8 +62,15 @@ async def get_nft_count(wallet: NFTWallet) -> int:
 @pytest.mark.asyncio
 # @pytest.mark.skip
 async def test_nft_offer_sell_nft(
-    self_hostname: str, two_wallet_nodes: Any, trusted: Any, zero_royalties: bool
+    self_hostname: str,
+    two_wallet_nodes: Any,
+    trusted: Any,
+    zero_royalties: bool,
+    consensus_mode: Mode,
 ) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]
     full_node_server = full_node_api.server
@@ -221,8 +229,15 @@ async def test_nft_offer_sell_nft(
 @pytest.mark.asyncio
 # @pytest.mark.skip
 async def test_nft_offer_request_nft(
-    self_hostname: str, two_wallet_nodes: Any, trusted: Any, zero_royalties: bool
+    self_hostname: str,
+    two_wallet_nodes: Any,
+    trusted: Any,
+    zero_royalties: bool,
+    consensus_mode: Mode,
 ) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]
     full_node_server = full_node_api.server
@@ -379,8 +394,11 @@ async def test_nft_offer_request_nft(
 @pytest.mark.asyncio
 # @pytest.mark.skip
 async def test_nft_offer_sell_did_to_did(
-    self_hostname: str, two_wallet_nodes: Any, trusted: Any, zero_royalties: bool
+    self_hostname: str, two_wallet_nodes: Any, trusted: Any, zero_royalties: bool, consensus_mode: Mode
 ) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]
     full_node_server = full_node_api.server
@@ -560,8 +578,15 @@ async def test_nft_offer_sell_did_to_did(
 @pytest.mark.asyncio
 # @pytest.mark.skip
 async def test_nft_offer_sell_nft_for_cat(
-    self_hostname: str, two_wallet_nodes: Any, trusted: Any, zero_royalties: bool
+    self_hostname: str,
+    two_wallet_nodes: Any,
+    trusted: Any,
+    zero_royalties: bool,
+    consensus_mode: Mode,
 ) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]
     full_node_server = full_node_api.server
@@ -757,8 +782,11 @@ async def test_nft_offer_sell_nft_for_cat(
 @pytest.mark.asyncio
 # @pytest.mark.skip
 async def test_nft_offer_request_nft_for_cat(
-    self_hostname: str, two_wallet_nodes: Any, trusted: bool, test_change: bool
+    self_hostname: str, two_wallet_nodes: Any, trusted: bool, test_change: bool, consensus_mode: Mode
 ) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]
     full_node_server = full_node_api.server
@@ -1217,11 +1245,18 @@ async def test_nft_offer_sell_cancel_in_batch(self_hostname: str, two_wallet_nod
 @pytest.mark.asyncio
 # @pytest.mark.skip
 async def test_complex_nft_offer(
-    self_hostname: str, two_wallet_nodes: Any, trusted: Any, royalty_pts: Tuple[int, int, int]
+    self_hostname: str,
+    two_wallet_nodes: Any,
+    trusted: Any,
+    royalty_pts: Tuple[int, int, int],
+    consensus_mode: Mode,
 ) -> None:
     """
     This test is going to create an offer where the maker offers 1 NFT and 1 CAT for 2 NFTs, an XCH and a CAT
     """
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     full_nodes, wallets, _ = two_wallet_nodes
     full_node_api: FullNodeSimulator = full_nodes[0]
     full_node_server = full_node_api.server

@@ -60,6 +60,7 @@ from chia.wallet.wallet_coin_record import WalletCoinRecord
 from chia.wallet.wallet_coin_store import GetCoinRecords
 from chia.wallet.wallet_node import WalletNode
 from chia.wallet.wallet_protocol import WalletProtocol
+from tests.conftest import Mode
 from tests.wallet.test_wallet_coin_store import (
     get_coin_records_amount_filter_tests,
     get_coin_records_amount_range_tests,
@@ -1854,7 +1855,11 @@ async def test_get_coin_records_rpc(
 @pytest.mark.asyncio
 async def test_get_coin_records_rpc_limits(
     wallet_rpc_environment: WalletRpcTestEnvironment,
+    consensus_mode: Mode,
 ) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     env: WalletRpcTestEnvironment = wallet_rpc_environment
     wallet_node: WalletNode = env.wallet_1.node
     client: WalletRpcClient = env.wallet_1.rpc_client
