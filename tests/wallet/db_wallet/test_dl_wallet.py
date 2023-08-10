@@ -19,6 +19,7 @@ from chia.util.ints import uint16, uint32, uint64
 from chia.wallet.db_wallet.db_wallet_puzzles import create_mirror_puzzle
 from chia.wallet.util.merkle_tree import MerkleTree
 from chia.wallet.util.tx_config import DEFAULT_TX_CONFIG
+from tests.conftest import Mode
 
 pytestmark = pytest.mark.data_layer
 
@@ -148,8 +149,11 @@ class TestDLWallet:
     )
     @pytest.mark.asyncio
     async def test_tracking_non_owned(
-        self, self_hostname: str, two_wallet_nodes: SimulatorsAndWallets, trusted: bool
+        self, self_hostname: str, two_wallet_nodes: SimulatorsAndWallets, trusted: bool, consensus_mode: Mode
     ) -> None:
+        if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+            pytest.skip("limit to plain and hard fork to save time")
+
         full_nodes, wallets, _ = two_wallet_nodes
         full_node_api = full_nodes[0]
         full_node_server = full_node_api.server

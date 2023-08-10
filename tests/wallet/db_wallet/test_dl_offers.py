@@ -14,6 +14,7 @@ from chia.wallet.trading.offer import Offer
 from chia.wallet.trading.trade_status import TradeStatus
 from chia.wallet.util.merkle_utils import build_merkle_tree, simplify_merkle_proof
 from chia.wallet.util.tx_config import DEFAULT_TX_CONFIG
+from tests.conftest import Mode
 
 
 async def is_singleton_confirmed_and_root(dl_wallet: DataLayerWallet, lid: bytes32, root: bytes32) -> bool:
@@ -42,7 +43,10 @@ def get_parent_branch(value: bytes32, proof: Tuple[int, List[bytes32]]) -> Tuple
     [True, False],
 )
 @pytest.mark.asyncio
-async def test_dl_offers(wallets_prefarm: Any, trusted: bool) -> None:
+async def test_dl_offers(wallets_prefarm: Any, trusted: bool, consensus_mode: Mode) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     (
         [wallet_node_maker, maker_funds],
         [wallet_node_taker, taker_funds],
@@ -307,7 +311,10 @@ async def test_dl_offer_cancellation(wallets_prefarm: Any, trusted: bool) -> Non
     [True, False],
 )
 @pytest.mark.asyncio
-async def test_multiple_dl_offers(wallets_prefarm: Any, trusted: bool) -> None:
+async def test_multiple_dl_offers(wallets_prefarm: Any, trusted: bool, consensus_mode: Mode) -> None:
+    if consensus_mode not in [Mode.PLAIN, Mode.HARD_FORK_2_0]:
+        pytest.skip("limit to plain and hard fork to save time")
+
     (
         [wallet_node_maker, maker_funds],
         [wallet_node_taker, taker_funds],
