@@ -32,6 +32,7 @@ from chia.util.keychain import Keychain, KeyData, supports_os_passphrase_storage
 from chia.util.keyring_wrapper import DEFAULT_PASSPHRASE_IF_NO_MASTER_PASSPHRASE, KeyringWrapper
 from chia.util.ws_message import create_payload, create_payload_dict
 from chia.wallet.derive_keys import master_sk_to_farmer_sk, master_sk_to_pool_sk
+from tests.conftest import Mode
 from tests.core.node_height import node_height_at_least
 from tests.util.misc import Marks, datacases
 
@@ -342,7 +343,10 @@ async def daemon_client_with_config_and_keys(get_keychain_for_function, get_daem
 
 
 @pytest.mark.asyncio
-async def test_daemon_simulation(self_hostname, daemon_simulation):
+async def test_daemon_simulation(self_hostname, daemon_simulation, consensus_mode: Mode):
+    if consensus_mode != Mode.PLAIN:
+        pytest.skip("daemon simulation does not support running in parallel")
+
     deamon_and_nodes, get_b_tools, bt = daemon_simulation
     node1, node2, _, _, _, _, _, _, _, _, daemon1 = deamon_and_nodes
     server1 = node1.full_node.server
@@ -372,7 +376,7 @@ async def test_daemon_simulation(self_hostname, daemon_simulation):
     data = {"service": service_name}
     payload = create_payload("register_service", data, service_name, "daemon")
     await ws.send_str(payload)
-    message_queue = asyncio.Queue()
+    message_queue: asyncio.Queue = asyncio.Queue()
 
     async def reader(ws, queue):
         while True:
