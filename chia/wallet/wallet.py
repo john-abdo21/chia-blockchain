@@ -190,7 +190,7 @@ class Wallet:
         coin_announcements_to_assert: Optional[Set[bytes32]] = None,
         puzzle_announcements: Optional[Set[bytes]] = None,
         puzzle_announcements_to_assert: Optional[Set[bytes32]] = None,
-        conditions: List[Condition] = [],
+        conditions: Tuple[Condition, ...] = tuple(),
         fee: uint64 = uint64(0),
     ) -> Program:
         assert fee >= 0
@@ -276,7 +276,7 @@ class Wallet:
         excluded_coins: Optional[Set[Coin]] = None,
         puzzle_decorator_override: Optional[List[Dict[str, Any]]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> List[CoinSpend]:
         """
         Generates a unsigned transaction in form of List(Puzzle, Solutions)
@@ -449,7 +449,7 @@ class Wallet:
         excluded_coins: Optional[Set[Coin]] = None,
         puzzle_decorator_override: Optional[List[Dict[str, Any]]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         **kwargs: Unpack[GSTOptionalArgs],
     ) -> TransactionRecord:
         origin_id: Optional[bytes32] = kwargs.get("origin_id", None)

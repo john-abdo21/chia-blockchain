@@ -290,7 +290,7 @@ class DataLayerWallet:
         self,
         initial_root: bytes32,
         fee: uint64 = uint64(0),
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> Tuple[TransactionRecord, TransactionRecord, bytes32]:
         """
         Creates the initial singleton, which includes spending an origin coin, the launcher, and creating a singleton
@@ -402,7 +402,7 @@ class DataLayerWallet:
         sign: bool = True,
         add_pending_singleton: bool = True,
         announce_new_state: bool = False,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> List[TransactionRecord]:
         singleton_record, parent_lineage = await self.get_spendable_singleton_info(launcher_id)
 
@@ -539,14 +539,15 @@ class DataLayerWallet:
             )
         ]
         if root_hash != singleton_record.root:
-            extra_conditions.append(
+            extra_conditions = (
+                *extra_conditions,
                 UnknownCondition(
                     opcode=Program.to(-24),
                     args=[
                         ACS_MU,
                         Program.to([[(root_hash, None), ACS_MU_PH], None]),
                     ],
-                )
+                ),
             )
         inner_sol: Program = self.standard_wallet.make_solution(
             primaries=primaries,
@@ -635,7 +636,7 @@ class DataLayerWallet:
         coin_announcements_to_consume: Optional[Set[Announcement]] = None,
         puzzle_announcements_to_consume: Optional[Set[Announcement]] = None,
         ignore_max_send_amount: bool = False,  # ignored
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         **kwargs: Unpack[GSTOptionalArgs],
     ) -> List[TransactionRecord]:
         launcher_id: Optional[bytes32] = kwargs.get("launcher_id", None)
@@ -736,7 +737,7 @@ class DataLayerWallet:
         amount: uint64,
         urls: List[bytes],
         fee: uint64 = uint64(0),
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> List[TransactionRecord]:
         create_mirror_tx_record: Optional[TransactionRecord] = await self.standard_wallet.generate_signed_transaction(
             amount=amount,
@@ -755,7 +756,7 @@ class DataLayerWallet:
         mirror_id: bytes32,
         peer: WSChiaConnection,
         fee: uint64 = uint64(0),
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> List[TransactionRecord]:
         mirror: Mirror = await self.get_mirror(mirror_id)
         mirror_coin: Coin = (await self.wallet_state_manager.wallet_node.get_coin_state([mirror.coin_id], peer=peer))[

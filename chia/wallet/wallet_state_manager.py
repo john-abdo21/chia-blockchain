@@ -18,6 +18,7 @@ from typing import (
     List,
     Optional,
     Set,
+    Tuple,
     Type,
     TypeVar,
     Union,
@@ -800,7 +801,7 @@ class WalletStateManager:
         clawback_coins: Dict[Coin, ClawbackMetadata],
         fee: uint64,
         force: bool = False,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> List[bytes32]:
         assert len(clawback_coins) > 0
         coin_spends: List[CoinSpend] = []

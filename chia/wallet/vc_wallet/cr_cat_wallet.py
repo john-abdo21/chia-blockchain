@@ -391,7 +391,7 @@ class CRCATWallet(CATWallet):
         excluded_coin_amounts: Optional[List[uint64]] = None,
         exclude_coins: Optional[Set[Coin]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         add_authorizations_to_cr_cats: bool = True,
     ) -> Tuple[SpendBundle, List[TransactionRecord]]:
         if coin_announcements_to_consume is not None:  # pragma: no cover
@@ -515,7 +515,7 @@ class CRCATWallet(CATWallet):
                     ],
                 )
                 if first:
-                    extra_conditions.append(cat_condition)
+                    extra_conditions = (*extra_conditions, cat_condition)
 
             crcat: CRCAT = self.coin_record_to_crcat(coin)
             vc_announcements_to_make.append(crcat.expected_announcement())
@@ -650,7 +650,7 @@ class CRCATWallet(CATWallet):
         max_coin_amount: Optional[uint64] = None,
         excluded_coin_amounts: Optional[List[uint64]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         **kwargs: Unpack[GSTOptionalArgs],
     ) -> List[TransactionRecord]:
         exclude_cat_coins: Optional[Set[Coin]] = kwargs.get("excluded_cat_coins", None)

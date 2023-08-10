@@ -338,7 +338,7 @@ class VerifiedCredential(Streamable):
         new_inner_puzzle_hash: bytes32,
         memos: List[bytes32],
         fee: uint64 = uint64(0),
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> Tuple[Program, List[CoinSpend], _T_VerifiedCredential]:
         """
         Launch a VC.

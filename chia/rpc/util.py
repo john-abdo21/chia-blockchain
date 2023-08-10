@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 import traceback
-from typing import Any, Callable, Coroutine, Dict, List
+from typing import Any, Callable, Coroutine, Dict, Tuple
 
 import aiohttp
 
@@ -38,9 +38,9 @@ def tx_endpoint(
     func: Callable[..., Coroutine[Any, Any, Dict[str, Any]]]
 ) -> Callable[..., Coroutine[Any, Any, Dict[str, Any]]]:
     async def rpc_endpoint(self, request: Dict[str, Any], *args, **kwargs) -> Dict[str, Any]:
-        extra_conditions: List[Condition] = []
+        extra_conditions: Tuple[Condition, ...] = tuple()
         if "extra_conditions" in request:
-            extra_conditions = conditions_from_json_dicts(request["extra_conditions"])
+            extra_conditions = tuple(conditions_from_json_dicts(request["extra_conditions"]))
         return await func(self, request, *args, extra_conditions=extra_conditions, **kwargs)
 
     return rpc_endpoint

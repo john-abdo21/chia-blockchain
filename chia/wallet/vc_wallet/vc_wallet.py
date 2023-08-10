@@ -153,7 +153,7 @@ class VCWallet:
         provider_did: bytes32,
         inner_puzzle_hash: Optional[bytes32] = None,
         fee: uint64 = uint64(0),
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> Tuple[VCRecord, List[TransactionRecord]]:
         """
         Given the DID ID of a proof provider, mint a brand new VC with an empty slot for proofs.
@@ -224,7 +224,7 @@ class VCWallet:
         coin_announcements_to_consume: Optional[Set[Announcement]] = None,
         puzzle_announcements_to_consume: Optional[Set[Announcement]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         **kwargs: Unpack[GSTOptionalArgs],
     ) -> List[TransactionRecord]:
         new_proof_hash: Optional[bytes32] = kwargs.get(
@@ -292,7 +292,7 @@ class VCWallet:
             magic_condition = vc_record.vc.magic_condition_for_new_proofs(new_proof_hash, provider_inner_puzhash)
         else:
             magic_condition = vc_record.vc.standard_magic_condition()
-        extra_conditions.append(UnknownCondition.from_program(magic_condition))
+        extra_conditions = (*extra_conditions, UnknownCondition.from_program(magic_condition))
         innersol: Program = self.standard_wallet.make_solution(
             primaries=primaries,
             coin_announcements=coin_announcements,
@@ -353,7 +353,7 @@ class VCWallet:
         peer: WSChiaConnection,
         fee: uint64 = uint64(0),
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> List[TransactionRecord]:
         vc_coin_states: List[CoinState] = await self.wallet_state_manager.wallet_node.get_coin_state(
             [parent_id], peer=peer

@@ -535,7 +535,10 @@ class DIDWallet:
         return self.wallet_info.name
 
     async def create_update_spend(
-        self, fee: uint64 = uint64(0), reuse_puzhash: Optional[bool] = None, extra_conditions: List[Condition] = []
+        self,
+        fee: uint64 = uint64(0),
+        reuse_puzhash: Optional[bool] = None,
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ):
         assert self.did_info.current_inner is not None
         assert self.did_info.origin_coin is not None
@@ -631,7 +634,7 @@ class DIDWallet:
         fee: uint64,
         with_recovery: bool,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> TransactionRecord:
         """
         Transfer the current DID to another owner
@@ -728,7 +731,7 @@ class DIDWallet:
         coin_announcements_to_assert: Optional[Set[Announcement]] = None,
         puzzle_announcements_to_assert: Optional[Set[Announcement]] = None,
         new_innerpuzzle: Optional[Program] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ):
         assert self.did_info.current_inner is not None
         assert self.did_info.origin_coin is not None
@@ -838,7 +841,7 @@ class DIDWallet:
         recovering_coin_name: bytes32,
         newpuz: bytes32,
         pubkey: G1Element,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> Tuple[SpendBundle, str]:
         """
         Create an attestment
@@ -1284,7 +1287,7 @@ class DIDWallet:
         coin: Coin,
         full_puzzle: Program,
         innerpuz: Program,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ):
         assert self.did_info.origin_coin is not None
         uncurried = did_wallet_puzzles.uncurry_innerpuz(innerpuz)

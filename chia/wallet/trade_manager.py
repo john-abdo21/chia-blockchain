@@ -227,7 +227,7 @@ class TradeManager:
         fee: uint64 = uint64(0),
         secure: bool = True,  # Cancel with a transaction on chain
         trade_cache: Dict[bytes32, TradeRecord] = {},  # Optional pre-fetched trade records for optimization
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> Optional[List[TransactionRecord]]:
         """This will create a transaction that includes coins that were offered"""
 
@@ -299,7 +299,7 @@ class TradeManager:
                             cancellation_additions.extend(tx.spend_bundle.additions())
                             all_txs.append(dataclasses.replace(tx, spend_bundle=None))
                 fee_to_pay = uint64(0)
-                extra_conditions = []
+                extra_conditions = tuple()
 
                 all_txs.append(
                     TransactionRecord(
@@ -355,7 +355,7 @@ class TradeManager:
         min_coin_amount: Optional[uint64] = None,
         max_coin_amount: Optional[uint64] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         taking: bool = False,
     ) -> Union[Tuple[Literal[True], TradeRecord, None], Tuple[Literal[False], None, str]]:
         if driver_dict is None:
@@ -407,7 +407,7 @@ class TradeManager:
         min_coin_amount: Optional[uint64] = None,
         max_coin_amount: Optional[uint64] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         taking: bool = False,
     ) -> Union[Tuple[Literal[True], Offer, None], Tuple[Literal[False], None, str]]:
         """
@@ -569,7 +569,7 @@ class TradeManager:
                     all_transactions.extend(txs)
 
                 fee_left_to_pay = uint64(0)
-                extra_conditions = []
+                extra_conditions = tuple()
 
             total_spend_bundle = SpendBundle.aggregate(
                 [x.spend_bundle for x in all_transactions if x.spend_bundle is not None]
@@ -712,7 +712,7 @@ class TradeManager:
         min_coin_amount: Optional[uint64] = None,
         max_coin_amount: Optional[uint64] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> Tuple[TradeRecord, List[TransactionRecord]]:
         if solver is None:
             solver = Solver({})

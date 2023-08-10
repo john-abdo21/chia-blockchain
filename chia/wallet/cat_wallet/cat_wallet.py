@@ -642,7 +642,7 @@ class CATWallet:
         excluded_coin_amounts: Optional[List[uint64]] = None,
         excluded_coins: Optional[Set[Coin]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> Tuple[SpendBundle, Optional[TransactionRecord]]:
         if coin_announcements_to_consume is not None:
             coin_announcements_bytes: Optional[Set[bytes32]] = {a.name() for a in coin_announcements_to_consume}
@@ -732,7 +732,7 @@ class CATWallet:
                     ],
                 )
                 if first:
-                    extra_conditions.append(cat_condition)
+                    extra_conditions = (*extra_conditions, cat_condition)
             if first:
                 first = False
                 announcement = Announcement(coin.name(), std_hash(b"".join([c.name() for c in cat_coins])))
@@ -826,7 +826,7 @@ class CATWallet:
         max_coin_amount: Optional[uint64] = None,
         excluded_coin_amounts: Optional[List[uint64]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
         **kwargs: Unpack[GSTOptionalArgs],
     ) -> List[TransactionRecord]:
         excluded_cat_coins: Optional[Set[Coin]] = kwargs.get("excluded_cat_coins", None)

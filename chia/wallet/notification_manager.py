@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import dataclasses
 import logging
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 from blspy import G2Element
 
@@ -88,7 +88,7 @@ class NotificationManager:
         msg: bytes,
         amount: uint64,
         fee: uint64 = uint64(0),
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> TransactionRecord:
         coins: Set[Coin] = await self.wallet_state_manager.main_wallet.select_coins(uint64(amount + fee))
         origin_coin: bytes32 = next(iter(coins)).name()
