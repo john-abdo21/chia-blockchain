@@ -739,7 +739,7 @@ class CRCATWallet(CATWallet):
         max_coin_amount: Optional[uint64] = None,
         excluded_coin_amounts: Optional[List[uint64]] = None,
         reuse_puzhash: Optional[bool] = None,
-        extra_conditions: List[Condition] = [],
+        extra_conditions: Tuple[Condition, ...] = tuple(),
     ) -> List[TransactionRecord]:
         # Select the relevant CR-CAT coins
         crcat_records: Set[WalletCoinRecord] = await self.wallet_state_manager.coin_store.get_unspent_coins_for_wallet(
