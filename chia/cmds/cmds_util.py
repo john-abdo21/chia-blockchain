@@ -4,7 +4,7 @@ import logging
 import traceback
 from contextlib import asynccontextmanager
 from pathlib import Path
-from typing import Any, AsyncIterator, Dict, List, Optional, Tuple, Type, TypeVar
+from typing import Any, AsyncIterator, Callable, Dict, List, Optional, Tuple, Type, TypeVar
 
 import click
 from aiohttp import ClientConnectorCertificateError, ClientConnectorError
@@ -235,3 +235,21 @@ def cli_confirm(input_message: str, abort_message: str = "Did not confirm. Abort
     if response not in ["y", "yes"]:
         print(abort_message)
         raise click.Abort()
+
+
+def timelock_args(func: Callable[..., None]) -> Callable[..., None]:
+    return click.option(
+        "--valid-at",
+        help="UNIX timestamp at which the associated transactions become valid",
+        type=int,
+        required=False,
+        default=None,
+    )(
+        click.option(
+            "--expires-at",
+            help="UNIX timestamp at which the associated transactions expire",
+            type=int,
+            required=False,
+            default=None,
+        )(func)
+    )
