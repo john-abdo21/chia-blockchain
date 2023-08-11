@@ -1471,10 +1471,7 @@ class WalletRpcApi:
             "signing_mode": SigningMode.CHIP_0002.value,
         }
 
-    @tx_endpoint
-    async def sign_message_by_id(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
-    ) -> EndpointResult:
+    async def sign_message_by_id(self, request: Dict[str, Any]) -> EndpointResult:
         """
         Given a NFT/DID ID, sign the message by the P2 private key.
         :param request:
