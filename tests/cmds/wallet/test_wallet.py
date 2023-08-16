@@ -13,6 +13,7 @@ from chia.types.signing_mode import SigningMode
 from chia.types.spend_bundle import SpendBundle
 from chia.util.bech32m import encode_puzzle_hash
 from chia.util.ints import uint8, uint32, uint64
+from chia.wallet.conditions import ConditionValidTimes
 from chia.wallet.trade_record import TradeRecord
 from chia.wallet.trading.offer import Offer
 from chia.wallet.trading.trade_status import TradeStatus
@@ -120,6 +121,7 @@ def test_get_transactions(capsys: object, get_test_cli_clients: Tuple[TestRpcCli
                     type=uint32(t_type.value),
                     name=bytes32([2 + i] * 32),
                     memos=[(bytes32([3 + i] * 32), [bytes([4 + i] * 32)])],
+                    valid_times=ConditionValidTimes(),
                 )
                 l_tx_rec.append(tx_rec)
 
@@ -337,6 +339,7 @@ def test_send(capsys: object, get_test_cli_clients: Tuple[TestRpcClients, Path])
                 type=uint32(TransactionType.OUTGOING_CLAWBACK.value),
                 name=get_bytes32(2),
                 memos=[(get_bytes32(3), [bytes([4] * 32)])],
+                valid_times=ConditionValidTimes(),
             )
             return tx_rec
 
@@ -673,6 +676,7 @@ def test_make_offer(capsys: object, get_test_cli_clients: Tuple[TestRpcClients, 
                 coins_of_interest=[],
                 trade_id=get_bytes32(2),
                 status=uint32(TradeStatus.PENDING_ACCEPT.value),
+                valid_times=ConditionValidTimes(),
             )
 
             return created_offer, trade_offer
@@ -811,6 +815,7 @@ def test_get_offers(capsys: object, get_test_cli_clients: Tuple[TestRpcClients, 
                     ],
                     trade_id=bytes32([1 + i] * 32),
                     status=uint32(TradeStatus.PENDING_ACCEPT.value),
+                    valid_times=ConditionValidTimes(),
                 )
                 records.append(trade_offer)
             return records
@@ -872,6 +877,7 @@ def test_take_offer(capsys: object, get_test_cli_clients: Tuple[TestRpcClients, 
                 coins_of_interest=offer.get_involved_coins(),
                 trade_id=offer.name(),
                 status=uint32(TradeStatus.PENDING_ACCEPT.value),
+                valid_times=ConditionValidTimes(),
             )
 
     inst_rpc_client = TakeOfferRpcClient()  # pylint: disable=no-value-for-parameter
@@ -921,6 +927,7 @@ def test_cancel_offer(capsys: object, get_test_cli_clients: Tuple[TestRpcClients
                 coins_of_interest=offer.get_involved_coins(),
                 trade_id=offer.name(),
                 status=uint32(TradeStatus.PENDING_ACCEPT.value),
+                valid_times=ConditionValidTimes(),
             )
 
         async def cancel_offer(self, trade_id: bytes32, fee: uint64 = uint64(0), secure: bool = True) -> None:
