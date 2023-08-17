@@ -628,7 +628,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def create_new_wallet(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         wallet_state_manager = self.service.wallet_state_manager
 
@@ -1004,7 +1004,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def send_transaction(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         if await self.service.wallet_state_manager.synced() is False:
             raise ValueError("Wallet needs to be fully synced before sending transactions")
@@ -1090,7 +1090,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def spend_clawback_coins(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         """Spend clawback coins that were sent (to claw them back) or received (to claim them).
 
@@ -1388,7 +1388,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def send_notification(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         tx: TransactionRecord = await self.service.wallet_state_manager.notification_manager.send_new_notification(
             bytes32.from_hexstr(request["target"]),
@@ -1553,7 +1553,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def cat_spend(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...], hold_lock: bool = True
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple(), hold_lock: bool = True
     ) -> EndpointResult:
         if await self.service.wallet_state_manager.synced() is False:
             raise ValueError("Wallet needs to be fully synced.")
@@ -1682,7 +1682,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def create_offer_for_ids(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         offer: Dict[str, int] = request["offer"]
         fee: uint64 = uint64(request.get("fee", 0))
@@ -1807,7 +1807,9 @@ class WalletRpcApi:
         }
 
     @tx_endpoint
-    async def take_offer(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def take_offer(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         offer_hex: str = request["offer"]
 
         ###
@@ -1908,7 +1910,9 @@ class WalletRpcApi:
         return {"total": total, "my_offers_count": my_offers_count, "taken_offers_count": taken_offers_count}
 
     @tx_endpoint
-    async def cancel_offer(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def cancel_offer(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         wsm = self.service.wallet_state_manager
         secure = request["secure"]
         trade_id = bytes32.from_hexstr(request["trade_id"])
@@ -1920,7 +1924,9 @@ class WalletRpcApi:
         return {}
 
     @tx_endpoint
-    async def cancel_offers(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def cancel_offers(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         secure = request["secure"]
         batch_fee: uint64 = uint64(request.get("batch_fee", 0))
         batch_size = request.get("batch_size", 5)
@@ -1988,7 +1994,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def did_update_recovery_ids(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         wallet_id = uint32(request["wallet_id"])
         wallet = self.service.wallet_state_manager.get_wallet(id=wallet_id, required_type=DIDWallet)
@@ -2015,7 +2021,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def did_message_spend(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         wallet_id = uint32(request["wallet_id"])
         wallet = self.service.wallet_state_manager.get_wallet(id=wallet_id, required_type=DIDWallet)
@@ -2259,7 +2265,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def did_update_metadata(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         wallet_id = uint32(request["wallet_id"])
         wallet = self.service.wallet_state_manager.get_wallet(id=wallet_id, required_type=DIDWallet)
@@ -2362,7 +2368,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def did_create_attest(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         wallet_id = uint32(request["wallet_id"])
         wallet = self.service.wallet_state_manager.get_wallet(id=wallet_id, required_type=DIDWallet)
@@ -2429,7 +2435,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def did_transfer_did(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         if await self.service.wallet_state_manager.synced() is False:
             raise ValueError("Wallet needs to be fully synced.")
@@ -2456,7 +2462,9 @@ class WalletRpcApi:
     ##########################################################################################
 
     @tx_endpoint
-    async def nft_mint_nft(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def nft_mint_nft(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         log.debug("Got minting RPC request: %s", request)
         wallet_id = uint32(request["wallet_id"])
         assert self.service.wallet_state_manager
@@ -2567,7 +2575,9 @@ class WalletRpcApi:
         return {"wallet_id": wallet_id, "success": True, "nft_list": nft_info_list}
 
     @tx_endpoint
-    async def nft_set_nft_did(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def nft_set_nft_did(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         wallet_id = uint32(request["wallet_id"])
         nft_wallet = self.service.wallet_state_manager.get_wallet(id=wallet_id, required_type=NFTWallet)
         did_id = request.get("did_id", b"")
@@ -2590,7 +2600,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def nft_set_did_bulk(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         """
         Bulk set DID for NFTs across different wallets.
@@ -2684,7 +2694,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def nft_transfer_bulk(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         """
         Bulk transfer NFTs to an address.
@@ -2828,7 +2838,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def nft_transfer_nft(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         wallet_id = uint32(request["wallet_id"])
         address = request["target_address"]
@@ -2936,7 +2946,9 @@ class WalletRpcApi:
         return {"success": True, "nft_info": nft_info}
 
     @tx_endpoint
-    async def nft_add_uri(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def nft_add_uri(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         wallet_id = uint32(request["wallet_id"])
         # Note metadata updater can only add one uri for one field per spend.
         # If you want to add multiple uris for one field, you need to spend multiple times.
@@ -2970,7 +2982,9 @@ class WalletRpcApi:
         )
 
     @tx_endpoint
-    async def nft_mint_bulk(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def nft_mint_bulk(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         if await self.service.wallet_state_manager.synced() is False:
             raise ValueError("Wallet needs to be fully synced.")
         wallet_id = uint32(request["wallet_id"])
@@ -3176,7 +3190,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def create_signed_transaction(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...], hold_lock: bool = True
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple(), hold_lock: bool = True
     ) -> EndpointResult:
         if "wallet_id" in request:
             wallet_id = uint32(request["wallet_id"])
@@ -3391,7 +3405,9 @@ class WalletRpcApi:
     # DataLayer Wallet
     ##########################################################################################
     @tx_endpoint
-    async def create_new_dl(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def create_new_dl(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         """Initialize the DataLayer Wallet (only one can exist)"""
         if self.service.wallet_state_manager is None:
             raise ValueError("The wallet service is not currently initialized")
@@ -3480,7 +3496,9 @@ class WalletRpcApi:
         return {"singletons": records_json}
 
     @tx_endpoint
-    async def dl_update_root(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def dl_update_root(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         """Get the singleton record for the latest singleton of a launcher ID"""
         if self.service.wallet_state_manager is None:
             raise ValueError("The wallet service is not currently initialized")
@@ -3499,7 +3517,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def dl_update_multiple(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         """Update multiple singletons with new merkle roots"""
         if self.service.wallet_state_manager is None:
@@ -3570,7 +3588,9 @@ class WalletRpcApi:
         return {"mirrors": mirrors_json}
 
     @tx_endpoint
-    async def dl_new_mirror(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def dl_new_mirror(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         """Add a new on chain message for a specific singleton"""
         if self.service.wallet_state_manager is None:
             raise ValueError("The wallet service is not currently initialized")
@@ -3593,7 +3613,7 @@ class WalletRpcApi:
 
     @tx_endpoint
     async def dl_delete_mirror(
-        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
     ) -> EndpointResult:
         """Remove an existing mirror for a specific singleton"""
         if self.service.wallet_state_manager is None:
@@ -3619,7 +3639,9 @@ class WalletRpcApi:
     # Verified Credential
     ##########################################################################################
     @tx_endpoint
-    async def vc_mint(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def vc_mint(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         """
         Mint a verified credential using the assigned DID
         :param request: We require 'did_id' that will be minting the VC and options for a new 'target_address' as well
@@ -3701,7 +3723,9 @@ class WalletRpcApi:
         }
 
     @tx_endpoint
-    async def vc_spend(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def vc_spend(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         """
         Spend a verified credential
         :param request: Required 'vc_id' launcher id of the vc we wish to spend. Optional paramaters for a 'new_puzhash'
@@ -3773,7 +3797,9 @@ class WalletRpcApi:
         return {"proofs": vc_proofs.key_value_pairs}
 
     @tx_endpoint
-    async def vc_revoke(self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...]) -> EndpointResult:
+    async def vc_revoke(
+        self, request: Dict[str, Any], extra_conditions: Tuple[Condition, ...] = tuple()
+    ) -> EndpointResult:
         """
         Revoke an on chain VC provided the correct DID is available
         :param request: required 'vc_parent_id' for the VC coin. Standard transaction params 'fee' & 'reuse_puzhash'.
