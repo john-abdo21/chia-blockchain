@@ -56,7 +56,7 @@ async def migrate_valid_timess(db_connection: aiosqlite.Connection) -> None:
 
     try:
         await db_connection.executemany("UPDATE transaction_record SET transaction_record=? WHERE bundle_id=?", updates)
-    except (aiosqlite.OperationalError, aiosqlite.IntegrityError):
+    except (aiosqlite.OperationalError, aiosqlite.IntegrityError):  # pragma: no cover
         log.exception("Failed to migrate valid_times property in transaction_record")
         raise
 

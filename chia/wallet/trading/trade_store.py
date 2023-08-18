@@ -95,7 +95,7 @@ async def migrate_valid_times(log: logging.Logger, db_connection: aiosqlite.Conn
 
     try:
         await db_connection.executemany("UPDATE trade_records SET trade_record=? WHERE trade_id=?", updates)
-    except (aiosqlite.OperationalError, aiosqlite.IntegrityError):
+    except (aiosqlite.OperationalError, aiosqlite.IntegrityError):  # pragma: no cover
         log.exception("Failed to migrate valid_times property in trade_records")
         raise
 
