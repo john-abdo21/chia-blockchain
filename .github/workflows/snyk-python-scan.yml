@@ -44,7 +44,7 @@ jobs:
 
     - name: Checkout Code
       if: steps.check_secrets.outputs.HAS_SNYK_SECRET
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
